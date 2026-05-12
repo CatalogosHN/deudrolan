@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control de Cuenta - Rolando</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #020617, #0f172a);
+      color: #e5e7eb;
+      padding: 14px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b, #020617);
+      border: 1px solid #334155;
+      border-radius: 22px;
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 27px;
+      color: #fff;
+    }
+
+    .header p {
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .bank-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    .label {
+      font-size: 12px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      text-align: right;
+    }
+
+    .summary {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+
+    .summary-title {
+      font-size: 15px;
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    .summary-amount {
+      font-size: 24px;
+      font-weight: 900;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .green {
+      color: #22c55e;
+    }
+
+    .red {
+      color: #ef4444;
+    }
+
+    .blue {
+      color: #38bdf8;
+    }
+
+    .section {
+      background: rgba(15, 23, 42, .95);
+      border: 1px solid #334155;
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: 21px;
+      color: #fff;
+    }
+
+    .final-message {
+      padding: 16px;
+      border-radius: 18px;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      background: #020617;
+      border: 1px solid #334155;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .movement-row,
+    .payment-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(135deg, #111827, #020617);
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 13px 15px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .movement-row::before,
+    .payment-row::before {
+      content: "";
+      width: 5px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #38bdf8;
+    }
+
+    .movement-row.entrada::before,
+    .payment-row.pagado::before {
+      background: #22c55e;
+    }
+
+    .movement-row.salida::before,
+    .payment-row.nopagado::before {
+      background: #ef4444;
+    }
+
+    .movement-left {
+      flex: 1;
+      min-width: 0;
+      padding-left: 3px;
+    }
+
+    .movement-date,
+    .payment-date {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .movement-description {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .movement-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .type-badge,
+    .status-badge {
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge-entry,
+    .badge-paid {
+      background: rgba(34, 197, 94, .15);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, .7);
+    }
+
+    .badge-out,
+    .badge-unpaid {
+      background: rgba(239, 68, 68, .15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, .7);
+    }
+
+    .movement-amount {
+      min-width: 120px;
+      font-size: 20px;
+      font-weight: 900;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .payment-left {
+      flex: 1;
+      padding-left: 3px;
+    }
+
+    .payment-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 650px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 17px;
+        border-radius: 20px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .info-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .value {
+        text-align: left;
+      }
+
+      .summary-row {
+        padding: 13px;
+      }
+
+      .summary-amount {
+        font-size: 21px;
+      }
+
+      .movement-row,
+      .payment-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        padding: 13px 14px;
+      }
+
+      .movement-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .movement-amount {
+        min-width: auto;
+        font-size: 21px;
+      }
+
+      .final-message {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1>Control de Cuentas</h1>
+      <p>Registro de dinero que entra y sale de la cuenta usada por Rolando.</p>
+
+      <div class="bank-info">
+        <div class="info-row">
+          <div class="label">Banco</div>
+          <div class="value">WELLS FARGO</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Cuenta</div>
+          <div class="value">**** **** **** 6793</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Cuenta Usada por</div>
+          <div class="value">Rolando</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Moneda</div>
+          <div class="value">USD</div>
+        </div>
+      </div>
+
+      <div class="note">
+        Nota: si esto va en internet, no pongas el número completo de cuenta.
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-row">
+        <div class="summary-title">Total recibido</div>
+        <div id="totalEntradas" class="summary-amount green">$0.00</div>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-title">Total sacado / pagado</div>
+        <div id="totalSalidas" class="summary-amount red">$0.00</div>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-title">Saldo disponible</div>
+        <div id="saldoFinal" class="summary-amount blue">$0.00</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Resumen final</h2>
+      <div id="mensajeFinal" class="final-message"></div>
+    </div>
+
+    <div class="section">
+      <h2>Movimientos de la cuenta</h2>
+      <div id="listaMovimientos" class="list"></div>
+    </div>
+
+    <div class="section">
+      <h2>Pagos mensuales</h2>
+      <div id="listaPagos" class="list"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const movimientos = [
+      { fecha: "01/04/26", descripcion: "Graziella Dolce", monto: 80 },
+      { fecha: "06/04/26", descripcion: "Dawn Marie Dunn", monto: 150 },
+      { fecha: "06/04/26", descripcion: "Iglesia Latina Bautista", monto: 1000 },
+      { fecha: "09/04/26", descripcion: "Olivares Marianne", monto: 200 },
+      { fecha: "10/04/26", descripcion: "Héctor Torres", monto: 120 },
+      { fecha: "13/04/26", descripcion: "Dawn Marie Dunn", monto: 50 },
+      { fecha: "13/04/26", descripcion: "Greenville Tree Service", monto: 170 },
+      { fecha: "13/04/26", descripcion: "Pasquina Decarlo ON", monto: 1000 },
+      { fecha: "13/04/26", descripcion: "Pago de deuda", monto: -160 },
+      { fecha: "15/04/26", descripcion: "Transferencia a Citibank", monto: -1604.83 },
+      { fecha: "17/04/26", descripcion: "Pasquina Decarlo", monto: 50 },
+      { fecha: "17/04/26", descripcion: "Dawn Marie Dunn", monto: 50 },
+      { fecha: "21/04/26", descripcion: "Olivares Marianne", monto: 290 },
+      { fecha: "24/04/26", descripcion: "Olivares Marianne", monto: 50 },
+      { fecha: "27/04/26", descripcion: "Dawn Marie Dunn", monto: 50 },
+      { fecha: "27/04/26", descripcion: "Velasquez Carlos", monto: 82.65 },
+      { fecha: "27/04/26", descripcion: "Tyler Ortiz ON", monto: 80 },
+      { fecha: "28/04/26", descripcion: "Peter Bosco ON", monto: 450 },
+      { fecha: "28/04/26", descripcion: "Roberto Villa Nicolás", monto: 20 },
+      { fecha: "28/04/26", descripcion: "Zelle Paola", monto: -300 },
+      { fecha: "28/04/26", descripcion: "Credit One Bank", monto: -1184.49 },
+      { fecha: "29/04/26", descripcion: "Olivares Marianne", monto: 200 },
+      { fecha: "01/05/26", descripcion: "Graziella Dolce", monto: 80 },
+      { fecha: "01/05/26", descripcion: "Michael Pérez", monto: 180 },
+      { fecha: "01/05/26", descripcion: "Pasquina Decarlo", monto: 100 },
+      { fecha: "04/05/26", descripcion: "Olivares Marianne", monto: 50 },
+      { fecha: "04/05/26", descripcion: "Dawn Marie Dunn", monto: 50 },
+      { fecha: "04/05/26", descripcion: "Angel Morales", monto: 200 },
+      { fecha: "05/05/26", descripcion: "Roxanne Geiger", monto: 450 },
+      { fecha: "05/05/26", descripcion: "Zelle Paola", monto: -120 },
+      { fecha: "06/05/26", descripcion: "Peter Gasiorowski", monto: 220 },
+      { fecha: "08/05/26", descripcion: "Pasquina Decarlo", monto: 50 },
+      { fecha: "08/05/26", descripcion: "Roberto Villa Nicolás", monto: 20 },
+      { fecha: "08/05/26", descripcion: "Dawn Marie Dunn", monto: 50 },
+      { fecha: "08/05/26", descripcion: "Tylee Ortiz", monto: 50 },
+      { fecha: "08/05/26", descripcion: "Zelle Paola", monto: -220 },
+      { fecha: "11/05/26", descripcion: "Olivares Marianne", monto: 50 }
+    ];
+
+    const pagosMensuales = [
+      { fecha: "15/04/26", estado: "PAGADO" },
+      { fecha: "15/05/26", estado: "NO PAGADO" },
+      { fecha: "15/06/26", estado: "NO PAGADO" },
+      { fecha: "15/07/26", estado: "NO PAGADO" },
+      { fecha: "15/08/26", estado: "NO PAGADO" },
+      { fecha: "15/09/26", estado: "NO PAGADO" },
+      { fecha: "15/10/26", estado: "NO PAGADO" },
+      { fecha: "15/11/26", estado: "NO PAGADO" },
+      { fecha: "15/12/26", estado: "NO PAGADO" }
+    ];
+
+    function convertirFechaLetras(fecha) {
+      const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ];
+
+      const partes = fecha.split("/");
+      const dia = parseInt(partes[0], 10);
+      const mes = parseInt(partes[1], 10);
+      const anio = partes[2].length === 2 ? "20" + partes[2] : partes[2];
+
+      return `${dia} ${meses[mes - 1]} del ${anio}`;
+    }
+
+    function formatoDinero(valor) {
+      return valor.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD"
+      });
+    }
+
+    function renderizarMovimientos() {
+      const lista = document.getElementById("listaMovimientos");
+      lista.innerHTML = "";
+
+      let entradas = 0;
+      let salidas = 0;
+
+      movimientos.forEach(item => {
+        const esEntrada = item.monto >= 0;
+
+        if (esEntrada) {
+          entradas += item.monto;
+        } else {
+          salidas += item.monto;
+        }
+
+        const tipo = esEntrada ? "ENTRADA" : "SALIDA";
+        const claseFila = esEntrada ? "entrada" : "salida";
+        const claseColor = esEntrada ? "green" : "red";
+        const claseBadge = esEntrada ? "badge-entry" : "badge-out";
+        const signo = esEntrada ? "+" : "-";
+
+        const fila = document.createElement("div");
+        fila.className = `movement-row ${claseFila}`;
+
+        fila.innerHTML = `
+          <div class="movement-left">
+            <div class="movement-date">${convertirFechaLetras(item.fecha)}</div>
+            <div class="movement-description">${item.descripcion}</div>
+          </div>
+
+          <div class="movement-right">
+            <span class="type-badge ${claseBadge}">${tipo}</span>
+            <div class="movement-amount ${claseColor}">
+              ${signo} ${formatoDinero(Math.abs(item.monto))}
+            </div>
+          </div>
+        `;
+
+        lista.appendChild(fila);
+      });
+
+      const saldo = entradas + salidas;
+
+      document.getElementById("totalEntradas").textContent = formatoDinero(entradas);
+      document.getElementById("totalSalidas").textContent = formatoDinero(salidas);
+      document.getElementById("saldoFinal").textContent = formatoDinero(saldo);
+
+      const mensaje = document.getElementById("mensajeFinal");
+
+      if (saldo >= 0) {
+        mensaje.className = "final-message green";
+        mensaje.textContent = `Rolando tiene disponible en la cuenta: ${formatoDinero(saldo)}`;
+      } else {
+        mensaje.className = "final-message red";
+        mensaje.textContent = `Rolando debe en la cuenta: ${formatoDinero(Math.abs(saldo))}`;
+      }
+    }
+
+    function renderizarPagos() {
+      const lista = document.getElementById("listaPagos");
+      lista.innerHTML = "";
+
+      pagosMensuales.forEach(pago => {
+        const pagado = pago.estado.toUpperCase() === "PAGADO";
+        const claseFila = pagado ? "pagado" : "nopagado";
+        const claseBadge = pagado ? "badge-paid" : "badge-unpaid";
+
+        const fila = document.createElement("div");
+        fila.className = `payment-row ${claseFila}`;
+
+        fila.innerHTML = `
+          <div class="payment-left">
+            <div class="payment-date">${convertirFechaLetras(pago.fecha)}</div>
+            <div class="payment-title">Pago mensual</div>
+          </div>
+
+          <span class="status-badge ${claseBadge}">${pago.estado}</span>
+        `;
+
+        lista.appendChild(fila);
+      });
+    }
+
+    renderizarMovimientos();
+    renderizarPagos();
+  </script>
+</body>
+</html>
