@@ -558,7 +558,7 @@
       lista.innerHTML = "";
 
       pagosMensuales.forEach(pago => {
-        const pagado = pago.estado.toUpperCase() === "PAGADO";
+        const pagado = pago.estado.toUpperCase() === "PAGADO $160";
         const claseFila = pagado ? "pagado" : "nopagado";
         const claseBadge = pagado ? "badge-paid" : "badge-unpaid";
 
